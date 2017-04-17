@@ -24,15 +24,6 @@ class Argument(object):
     position = attr.ib()
     index = attr.ib()
 
-    def repr(self):
-        r = self.varname
-        if self.has_annotation:
-            annot = self.annotation
-            r += ':' + getattr(annot, '__name__', repr(annot))
-        if self.has_default:
-            r += '=' + repr(self.default)
-        return self._prefix + r
-
     @property
     def varname(self):
         return self.callable.code.co_varnames[self.index]
@@ -184,31 +175,4 @@ class Callable(object):
     @property
     def annotations(self):
         return getattr(self.callable, '__annotations__', None) or {}
-
-
-def signature(f):
-    c = Callable(f)
-    parts = []
-    name = c.code.co_name
-    is_lambda = name == '<lambda>'
-    if is_lambda:
-        parts.append('lambda')
-        if c.arguments:
-            parts.append(' ')
-    else:
-        parts.append('def ')
-        parts.append(name)
-        parts.append('(')
-    for arg in c.arguments:
-        parts.append(arg.repr())
-        parts.append(', ')
-    if c.arguments:
-        parts.pop()
-    if not is_lambda:
-        parts.append(')')
-    if 'return' in c.annotations:
-        parts.append(' -> ')
-        annot = c.annotations['return']
-        parts.append(getattr(annot, '__name__', repr(annot)))
-    return ''.join(parts)
 

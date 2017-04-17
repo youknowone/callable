@@ -1,6 +1,6 @@
 
 import asyncio
-from callable import signature
+from signature import signature
 
 import pytest
 

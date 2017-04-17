@@ -1,12 +1,13 @@
 
 import sys
-print(sys.version_info[0])
+import pytest
+
+from callable import Callable
+from signature import signature
+
+
 if sys.version_info[0] >= 3:
     from _test_callable_py3 import *
-
-from callable import signature
-
-import pytest
 
 @pytest.mark.parametrize('f,sig', [
     (lambda: None, 'lambda'),
@@ -17,3 +18,12 @@ import pytest
 def test_signature_py2(f, sig):
     assert signature(f) == sig, sig
 
+
+def test_default():
+    f = lambda a, b='x': None
+    s = Callable(f).arguments
+    a = s.get('a')
+    assert not a.has_default
+    b = s.get('b')
+    assert b.has_default
+    assert b.default == 'x'
