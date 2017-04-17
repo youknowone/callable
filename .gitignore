@@ -1,0 +1,17 @@
+
+dist
+.env*
+.python-version
+*.pyc
+*.egg-info
+MANIFEST
+
+.cache
+.eggs
+.idea
+.tox
+.ropeproject
+.*.swp
+.*.swo
+/build
+setup.cfg
