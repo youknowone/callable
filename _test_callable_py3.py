@@ -27,4 +27,3 @@ def f2(a: int, b: str = 'x') -> None:
 def test_signature_py3(f, sig):
     s = signature(f)
     assert s == sig, s
-

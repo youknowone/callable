@@ -1,6 +1,7 @@
 
 from callable import Callable
 
+
 def argument(arg):
     parts = [arg._prefix, arg.varname]
     if arg.has_annotation:
