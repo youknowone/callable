@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 
 import sys
+from collections import OrderedDict
 import attr
 
 is_py3 = sys.version_info.major >= 3
@@ -87,12 +88,21 @@ class DoubleStarArgument(PositionalArgument):
 
 class ArgumentList(list):
 
-    _table = None
+    @temporal_property
+    def _table(self):
+        self._table = {arg.varname: arg for arg in self}
+        return self._table
 
     def get(self, varname):
-        if self._table is None:
-            self._table = {arg.varname: arg for arg in self}
         return self._table[varname]
+
+    def keys(self):
+        return self._table.keys()
+
+    def __getitem__(self, item):
+        if isinstance(item, str):
+            return self.get(item)
+        return super(ArgumentList, self).__getitem__(item)
 
 
 class Callable(object):
@@ -176,3 +186,53 @@ class Callable(object):
     def annotations(self):
         return getattr(self.callable, '__annotations__', None) or {}
 
+    def kwargify(self, args, kwargs):
+        kwargs = kwargs.copy()
+        code = self.code
+        if len(args) > code.co_argcount and not self.star_argument:
+            raise TypeError(
+                '{}() takes {} positional arguments but {} were given'.format(
+                    code.co_name, code.co_argcount, len(args)))
+        merged = OrderedDict(
+            (self.arguments[i].varname, arg)
+            for i, arg in enumerate(args[:len(self.positional_arguments)]))
+        i = len(merged)
+        while i < len(self.positional_arguments):
+            argument = self.positional_arguments[i]
+            i += 1
+            if argument.varname in kwargs:
+                merged[argument.varname] = kwargs.pop(argument.varname)
+            elif argument.has_default:
+                merged[argument.varname] = argument.default
+            else:
+                missing_count = len(self.positional_arguments) - i
+                raise TypeError(
+                    "{}() missing {} required positional argument: '{}'".format(
+                        code.co_name, missing_count, ', '.join(
+                            '{arg.varname}'.format(arg=arg)
+                            for arg in self.positional_arguments[i:i+missing_count])))
+
+        if self.star_argument:
+            merged[self.star_argument.varname] = args[i:]
+
+        unhandled_kws = []
+        for kw, arg in kwargs.items():
+            if kw in merged:
+                raise TypeError(
+                    "{}() got multiple values for argument '{}'".format(
+                        code.co_name, kw))
+            elif kw in self.arguments.keys():
+                merged[kw] = arg
+            else:
+                unhandled_kws.append(kw)
+
+        for argument in self.keyword_only_arguments:
+            if argument.varname in merged:
+                continue
+            assert argument.has_default
+            merged[argument.varname] = argument.default
+
+        if self.double_star_argument:
+            merged[self.double_star_argument.varname] = {kw: kwargs[kw] for kw in unhandled_kws}
+
+        return merged
