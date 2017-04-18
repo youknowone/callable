@@ -28,7 +28,7 @@ def get_readme():
 
 setup(
     name='callable',
-    version='0.1',
+    version='0.1.1',
     description='Easy interface to handle callable signature',
     long_description=get_readme(),
     author='Jeong YunWon',

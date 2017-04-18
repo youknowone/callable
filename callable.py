@@ -31,7 +31,7 @@ class Argument(object):
 
     @property
     def has_default(self):
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @property
     def has_annotation(self):
@@ -225,7 +225,10 @@ class Callable(object):
         for argument in self.keyword_only_arguments:
             if argument.varname in merged:
                 continue
-            assert argument.has_default
+            if not argument.has_default:
+                raise TypeError(
+                    "{}() missing 1 required keyword-only argument: '{}'".format(
+                        code.co_name, argument.varname))
             merged[argument.varname] = argument.default
 
         if self.double_star_argument:

@@ -30,10 +30,18 @@ def test_default():
     assert b.default == 'x'
 
 
+def test_get():
+    c = Callable(test_signature_py2)
+    assert not c.arguments['f'].has_default
+    with pytest.raises(KeyError):
+        c.arguments['xyz']
+
+
 @pytest.mark.parametrize('f,args,kwargs,merged', [
     (lambda: None, (), {}, {}),
     (lambda x, y: None, (1, 2), {}, dict(x=1, y=2)),
     (lambda x, y, z=30: None, (1, 2), {}, dict(x=1, y=2, z=30)),
+    (lambda x, y, z=30: None, (1,), {'y': 2}, dict(x=1, y=2, z=30)),
     (lambda x, y, z=30: None, (1, 2, 3), {}, dict(x=1, y=2, z=3)),
     (lambda x, y, z=30: None, (1,), {'y': 20}, dict(x=1, y=20, z=30)),
     (lambda x, y, *args: None, (1,), {'y': 20}, dict(x=1, y=20, args=())),
@@ -44,3 +52,14 @@ def test_default():
 def test_kwargify(f, args, kwargs, merged):
     kwargified = Callable(f).kwargify(args, kwargs)
     assert kwargified == merged
+
+
+@pytest.mark.parametrize('f,args,kwargs,exc', [
+    (lambda: None, (1, 2), {}, TypeError),
+    (lambda x, y: None, (2, 3), {'x': 1}, TypeError),
+    (lambda x, y, z=30: None, (1,), {}, TypeError),
+    (lambda x, y, z=30: None, (1,), {'x': 2}, TypeError),
+])
+def test_kwargify_exc(f, args, kwargs, exc):
+    with pytest.raises(exc):
+        Callable(f).kwargify(args, kwargs)
