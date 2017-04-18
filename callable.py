@@ -41,10 +41,6 @@ class Argument(object):
     def annotation(self):
         return self.callable.annotations[self.varname]
 
-    @property
-    def signature_name(self):
-        return self.varname
-
 
 class PositionalArgument(Argument):
 
