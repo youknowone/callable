@@ -1,0 +1,25 @@
+language: python
+sudo: false
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "nightly"
+  - "pypy"
+  - "pypy3"
+# command to install dependencies
+install:
+  - "pip install --upgrade pip"
+  - "pip install flake8 pytest-cov '.[tests]'"
+# command to run tests
+script:
+  - "flake8 --ignore=E501,E999 ."
+  - "py.test --cov=callable -vv"
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+matrix:
+  allow_failures:
+    - python:
+      - nightly
