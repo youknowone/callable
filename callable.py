@@ -2,10 +2,12 @@
 from __future__ import absolute_import
 
 import sys
+import inspect
 from collections import OrderedDict
 import attr
 
 is_py3 = sys.version_info.major >= 3
+inspect_iscoroutinefunction = getattr(inspect, 'iscoroutinefunction', lambda f: False)
 
 
 class temporal_property(object):
@@ -104,9 +106,10 @@ class ArgumentList(list):
 class Callable(object):
 
     def __init__(self, f):
-        assert callable(f)
         self.callable = f
-        self.is_coroutine = getattr(f, '_is_coroutine', None)
+        self.is_wrapped_coroutine = getattr(f, '_is_coroutine', None)
+        self.is_coroutine = self.is_wrapped_coroutine or \
+            inspect_iscoroutinefunction(f)
         self.decompose()
 
     def decompose(self):
@@ -159,7 +162,7 @@ class Callable(object):
     def code(self):
         '''REAL __code__ for the given callable'''
         c = self.callable
-        if self.is_coroutine:
+        if self.is_wrapped_coroutine:
             code = c.__wrapped__.__code__
         else:
             code = c.__code__
@@ -168,7 +171,7 @@ class Callable(object):
 
     @property
     def defaults(self):
-        if self.is_coroutine:
+        if self.is_wrapped_coroutine:
             c = self.callable.__wrapped__
         else:
             c = self.callable
