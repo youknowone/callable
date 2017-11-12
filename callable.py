@@ -7,7 +7,8 @@ from collections import OrderedDict
 import attr
 
 is_py3 = sys.version_info.major >= 3
-inspect_iscoroutinefunction = getattr(inspect, 'iscoroutinefunction', lambda f: False)
+inspect_iscoroutinefunction = getattr(
+    inspect, 'iscoroutinefunction', lambda f: False)
 
 
 class temporal_property(object):
@@ -131,7 +132,8 @@ class Callable(object):
         kwonlyargcount = getattr(code, 'co_kwonlyargcount', 0)
 
         for var_idx in range(var_idx + 1, var_idx + 1 + kwonlyargcount):
-            argument = KeywordOnlyArgument(self, bool(has_sarg) + var_idx, var_idx)
+            argument = KeywordOnlyArgument(
+                self, bool(has_sarg) + var_idx, var_idx)
             self.keyword_only_arguments.append(argument)
 
         if has_sarg:
@@ -140,7 +142,8 @@ class Callable(object):
 
         if has_ssarg:
             var_idx += 1
-            self.double_star_argument = DoubleStarArgument(self, var_idx, var_idx)
+            self.double_star_argument = DoubleStarArgument(
+                self, var_idx, var_idx)
 
     def iter_arguments(self):
         for arg in self.positional_arguments:
@@ -235,6 +238,7 @@ class Callable(object):
             merged[argument.varname] = argument.default
 
         if self.double_star_argument:
-            merged[self.double_star_argument.varname] = {kw: kwargs[kw] for kw in unhandled_kws}
+            merged[self.double_star_argument.varname] = {
+                kw: kwargs[kw] for kw in unhandled_kws}
 
         return merged
