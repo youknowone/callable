@@ -13,9 +13,10 @@ if sys.version_info[:2] == (3, 3):
     ])
 
 if sys.version_info >= (3, 3):
-    tests_require.extend([
-        'pytest-asyncio',
-    ])
+    if sys.version_info < (3, 5):
+        tests_require.append('pytest-asyncio==0.5.0')
+    else:
+        tests_require.append('pytest-asyncio')
 
 
 def get_readme():
@@ -28,7 +29,7 @@ def get_readme():
 
 setup(
     name='callable',
-    version='0.1.1',
+    version='0.1.2',
     description='Easy interface to handle callable signature',
     long_description=get_readme(),
     author='Jeong YunWon',
