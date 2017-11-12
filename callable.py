@@ -198,7 +198,6 @@ class Callable(object):
         i = len(merged)
         while i < len(self.positional_arguments):
             argument = self.positional_arguments[i]
-            i += 1
             if argument.varname in kwargs:
                 merged[argument.varname] = kwargs.pop(argument.varname)
             elif argument.has_default:
@@ -210,6 +209,7 @@ class Callable(object):
                         code.co_name, missing_count, ', '.join(
                             '{arg.varname}'.format(arg=arg)
                             for arg in self.positional_arguments[i:i + missing_count])))
+            i += 1
 
         if self.star_argument:
             merged[self.star_argument.varname] = args[i:]
