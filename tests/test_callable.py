@@ -2,7 +2,7 @@
 import sys
 import pytest
 
-from callable import Callable
+from callable import Callable, inspect
 from signature import signature
 
 
@@ -17,24 +17,24 @@ if sys.version_info[0] >= 3:
     (lambda a, b='x', *args, **kw: None, "lambda a, b='x', *args, **kw"),
 ])
 def test_signature_py2(f, sig):
-    assert signature(f) == sig, sig
+    assert signature(f) == sig, (signature(f), sig)
 
 
 def test_default():
     f = lambda a, b='x': None  # noqa
-    s = Callable(f).arguments
+    s = Callable(f).parameters
     a = s.get('a')
-    assert not a.has_default
+    assert a.default is inspect.Parameter.empty
     b = s.get('b')
-    assert b.has_default
+    assert b.default is not inspect.Parameter.empty
     assert b.default == 'x'
 
 
 def test_get():
     c = Callable(test_signature_py2)
-    assert not c.arguments['f'].has_default
+    assert c.parameters['f'].default is inspect.Parameter.empty
     with pytest.raises(KeyError):
-        c.arguments['xyz']
+        c.parameters['xyz']
 
 
 @pytest.mark.parametrize('f,args,kwargs,merged', [
@@ -51,6 +51,8 @@ def test_get():
 ])
 def test_kwargify(f, args, kwargs, merged):
     kwargified = Callable(f).kwargify(args, kwargs)
+    print(kwargified)
+    print(merged)
     assert kwargified == merged
 
 

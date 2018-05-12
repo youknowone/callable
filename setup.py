@@ -3,9 +3,16 @@ from __future__ import with_statement
 from setuptools import setup
 import sys
 
+install_requires = [
+]
 tests_require = [
     'pytest>=3.0.2', 'pytest-cov',
 ]
+
+if sys.version_info[0] == 2:
+    install_requires.extend([
+        'inspect2',
+    ])
 
 if sys.version_info[:2] == (3, 3):
     tests_require.extend([
@@ -29,8 +36,8 @@ def get_readme():
 
 setup(
     name='callable',
-    version='0.1.2',
-    description='Easy interface to handle callable signature',
+    version='0.2.0',
+    description='Deprecated. Use `inspect.signature`.',
     long_description=get_readme(),
     author='Jeong YunWon',
     author_email='callable@youknowone.org',
@@ -38,7 +45,7 @@ setup(
     py_modules=(
         'callable',
     ),
-    install_requires=['attrs >= 16.3'],
+    install_requires=install_requires,
     tests_require=tests_require + ['tox', 'tox-pyenv'],
     extras_require={
         'tests': tests_require,

@@ -6,12 +6,12 @@ from signature import signature
 import pytest
 
 
-def f1(a: int, b: str = 'x') -> None:
+def f1(a: int, b: str='x') -> None:
     pass
 
 
 @asyncio.coroutine
-def f2(a: int, b: str = 'x') -> None:
+def f2(a: int, b: str='x') -> None:
     pass
 
 
@@ -36,12 +36,15 @@ def test_signature_py3(f, sig):
 ])
 def test_kwargify_py3(f, args, kwargs, merged):
     kwargified = Callable(f).kwargify(args, kwargs)
-    assert kwargified == merged
+    print(kwargified)
+    print(merged)
+    assert kwargified == merged, (kwargified, merged)
 
 
 @pytest.mark.parametrize('f,args,kwargs,exc', [
     (lambda x, *args, y=30: None, (2), {'x': 1}, TypeError),
     (lambda x, *, y, z=20: None, (1,), {}, TypeError),
+    (lambda x, *, z=20: None, (1,), {'w': 2}, TypeError),
 ])
 def test_kwargify_exc_py3(f, args, kwargs, exc):
     with pytest.raises(exc):

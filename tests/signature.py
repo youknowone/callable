@@ -1,14 +1,22 @@
 
+try:
+    import inspect2 as inspect
+except ImportError:
+    import inspect
 from callable import Callable
 
 
 def argument(arg):
-    parts = [arg._prefix, arg.varname]
-    if arg.has_annotation:
+    prefixes = {
+        inspect.Parameter.VAR_POSITIONAL: '*',
+        inspect.Parameter.VAR_KEYWORD: '**',
+    }
+    parts = [prefixes.get(arg.kind, ''), arg.name]
+    if arg.annotation is not inspect.Parameter.empty:
         annot = arg.annotation
         parts.append(':')
         parts.append(getattr(annot, '__name__', repr(annot)))
-    if arg.has_default:
+    if arg.default is not inspect.Parameter.empty:
         parts.append('=')
         parts.append(repr(arg.default))
     return ''.join(parts)
@@ -21,16 +29,16 @@ def signature(f):
     is_lambda = name == '<lambda>'
     if is_lambda:
         parts.append('lambda')
-        if c.arguments:
+        if c.parameters.values():
             parts.append(' ')
     else:
         parts.append('def ')
         parts.append(name)
         parts.append('(')
-    for arg in c.arguments:
+    for arg in c.parameters.values():
         parts.append(argument(arg))
         parts.append(', ')
-    if c.arguments:
+    if c.parameters:
         parts.pop()
     if not is_lambda:
         parts.append(')')
