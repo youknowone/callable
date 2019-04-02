@@ -4,7 +4,7 @@ from setuptools import setup
 import sys
 
 tests_require = [
-    'pytest>=3.0.2', 'pytest-cov',
+    'pytest>=4.4.0', 'pytest-cov>=2.6.1',
 ]
 
 if sys.version_info[:2] == (3, 3):
@@ -38,7 +38,7 @@ setup(
     py_modules=(
         'callable',
     ),
-    install_requires=['attrs >= 16.3'],
+    install_requires=['attrs >= 19.1'],
     tests_require=tests_require + ['tox', 'tox-pyenv'],
     extras_require={
         'tests': tests_require,
